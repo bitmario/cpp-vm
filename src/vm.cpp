@@ -848,26 +848,6 @@ ExecResult VM::run(uint32_t maxInstr)
 #endif
             break;
         }
-        case OP_I2S:
-        {
-            _CHECK_BYTES_AVAIL(3)
-            const uint16_t addr = _NEXT_SHORT;
-            const uint8_t reg = _NEXT_BYTE;
-            _CHECK_ADDR_VALID((uint32_t)addr + 3)
-            _CHECK_REGISTER_VALID(reg)
-            sprintf((char *)&this->_program[addr], "%d", this->_registers[reg]);
-            break;
-        }
-        case OP_S2I:
-        {
-            _CHECK_BYTES_AVAIL(3)
-            const uint8_t reg = _NEXT_BYTE;
-            const uint16_t addr = _NEXT_SHORT;
-            _CHECK_ADDR_VALID((uint32_t)addr + 3)
-            _CHECK_REGISTER_VALID(reg)
-            sscanf((char *)&this->_program[addr], "%d", &this->_registers[reg]);
-            break;
-        }
 #ifdef ARDUINO
         case OP_A_DR:
         {

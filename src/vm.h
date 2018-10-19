@@ -108,8 +108,6 @@ enum Instruction : uint8_t
     OP_READF,   // read a float from stdin to the specified register
     OP_READC,   // read a single character's code from stdin to the specified register
     OP_READS,   // read a line to the specified memory address, to a maximum length
-    OP_I2S,     // convert an int stored in a register to a string in a specific address, e.g.: i2s 0x20 0x00, r0
-    OP_S2I,     // convert a string at the specified address to an int in a register, e.g.: s2i r0, 0x20 0x00
 #ifdef ARDUINO
     // Arduino:
     OP_A_DR,  // digital read from a pin to a register, e.g.: dr r0, 0x0A
