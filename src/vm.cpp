@@ -18,12 +18,14 @@
 #define _CHECK_REGISTER_VALID(r) \
     if (r >= REGISTER_COUNT)     \
         return ExecResult::VM_ERR_INVALID_REGISTER;
-#define _CHECK_CAN_PUSH(n)                     \
-    if (this->_registers[SP] >= VM_STACK_SIZE) \
+#define _CHECK_CAN_PUSH(n)                        \
+    if (this->_registers[SP] + n > VM_STACK_SIZE) \
         return ExecResult::VM_ERR_STACK_OVERFLOW;
-#define _CHECK_CAN_POP(n)         \
-    if (this->_registers[SP] < n) \
-        return ExecResult::VM_ERR_STACK_UNDERFLOW;
+#define _CHECK_CAN_POP(n)                          \
+    if (this->_registers[SP] < n)                  \
+        return ExecResult::VM_ERR_STACK_UNDERFLOW; \
+    if (this->_registers[SP] > VM_STACK_SIZE)      \
+        return ExecResult::VM_ERR_STACK_OVERFLOW;
 #else
 #define _CHECK_ADDR_VALID(a)
 #define _CHECK_BYTES_AVAIL(n)
