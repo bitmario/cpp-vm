@@ -17,6 +17,7 @@ enum ExecResult : uint8_t
     VM_FINISHED,                // execution completed (i.e. got halt instruction)
     VM_PAUSED,                  // execution paused since we hit the maximum instructions
     VM_ERR_UNKNOWN_OPCODE,      // unknown opcode
+    VM_ERR_UNSUPPORTED_OPCODE,  // instruction not supported on this platform
     VM_ERR_UNHANDLED_INTERRUPT, // interrupt triggered without registered handler
     VM_ERR_STACK_OVERFLOW,      // stack overflow
     VM_ERR_STACK_UNDERFLOW,     // stack underflow

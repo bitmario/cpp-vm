@@ -794,7 +794,7 @@ ExecResult VM::run(uint32_t maxInstr)
             const uint8_t reg = _NEXT_BYTE;
             _CHECK_REGISTER_VALID(reg)
 #ifdef ARDUINO
-
+            return ExecResult::VM_ERR_UNSUPPORTED_OPCODE;
 #else
             scanf("%u", &this->_registers[reg]);
 #endif
@@ -806,7 +806,7 @@ ExecResult VM::run(uint32_t maxInstr)
             const uint8_t reg = _NEXT_BYTE;
             _CHECK_REGISTER_VALID(reg)
 #ifdef ARDUINO
-
+            return ExecResult::VM_ERR_UNSUPPORTED_OPCODE;
 #else
             scanf("%d", (int32_t *)&this->_registers[reg]);
 #endif
@@ -818,7 +818,7 @@ ExecResult VM::run(uint32_t maxInstr)
             const uint8_t reg = _NEXT_BYTE;
             _CHECK_REGISTER_VALID(reg)
 #ifdef ARDUINO
-
+            return ExecResult::VM_ERR_UNSUPPORTED_OPCODE;
 #else
             scanf("%f", (float *)&this->_registers[reg]);
 #endif
@@ -830,7 +830,7 @@ ExecResult VM::run(uint32_t maxInstr)
             const uint8_t reg = _NEXT_BYTE;
             _CHECK_REGISTER_VALID(reg)
 #ifdef ARDUINO
-
+            return ExecResult::VM_ERR_UNSUPPORTED_OPCODE;
 #else
             this->_registers[reg] = getchar();
 #endif
@@ -844,7 +844,7 @@ ExecResult VM::run(uint32_t maxInstr)
             _CHECK_ADDR_VALID((uint32_t)addr + maxLen)
             char *dest = (char *)&this->_program[addr];
 #ifdef ARDUINO
-
+            return ExecResult::VM_ERR_UNSUPPORTED_OPCODE;
 #else
             getline(&dest, &maxLen, stdin);
 #endif
