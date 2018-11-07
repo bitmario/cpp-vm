@@ -11,8 +11,8 @@
 
 #ifndef VM_DISABLE_CHECKS
 #define _CHECK_ADDR_VALID(a) \
-    if (a >= this->_progLen) \
-        return ExecResult::VM_ERR_PROGRAM_OVERRUN;
+    if (a >= this->_memSize) \
+        return ExecResult::VM_ERR_INVALID_ADDRESS;
 #define _CHECK_BYTES_AVAIL(n) \
     _CHECK_ADDR_VALID(this->_registers[IP] + n)
 #define _CHECK_REGISTER_VALID(r) \
@@ -21,10 +21,10 @@
 #define _CHECK_CAN_PUSH(n)                                              \
     if (this->_registers[SP] - (n * sizeof(uint32_t)) < this->_progLen) \
         return ExecResult::VM_ERR_STACK_OVERFLOW;
-#define _CHECK_CAN_POP(n)                                                                  \
-    if (this->_registers[SP] + (n * sizeof(uint32_t)) > this->_progLen + this->_stackSize) \
-        return ExecResult::VM_ERR_STACK_UNDERFLOW;                                         \
-    if (this->_registers[SP] < this->_progLen)                                             \
+#define _CHECK_CAN_POP(n)                                               \
+    if (this->_registers[SP] + (n * sizeof(uint32_t)) > this->_memSize) \
+        return ExecResult::VM_ERR_STACK_UNDERFLOW;                      \
+    if (this->_registers[SP] < this->_progLen)                          \
         return ExecResult::VM_ERR_STACK_OVERFLOW;
 #else
 #define _CHECK_ADDR_VALID(a)
@@ -35,7 +35,7 @@
 #endif
 
 VM::VM(uint8_t *program, uint16_t progLen, uint16_t stackSize)
-    : _memory(new uint8_t[progLen + stackSize]), _progLen(progLen), _stackSize(stackSize)
+    : _memory(new uint8_t[progLen + stackSize]), _memSize(progLen + stackSize), _progLen(progLen), _stackSize(stackSize)
 {
     memcpy(this->_memory, program, progLen);
     this->reset();

@@ -16,11 +16,11 @@ enum ExecResult : uint8_t
     VM_PAUSED,                  // execution paused since we hit the maximum instructions
     VM_ERR_UNKNOWN_OPCODE,      // unknown opcode
     VM_ERR_UNSUPPORTED_OPCODE,  // instruction not supported on this platform
+    VM_ERR_INVALID_REGISTER,    // invalid register access
     VM_ERR_UNHANDLED_INTERRUPT, // interrupt triggered without registered handler
     VM_ERR_STACK_OVERFLOW,      // stack overflow
     VM_ERR_STACK_UNDERFLOW,     // stack underflow
-    VM_ERR_PROGRAM_OVERRUN,     // tried to access memory beyond the program
-    VM_ERR_INVALID_REGISTER,    // invalid register access
+    VM_ERR_INVALID_ADDRESS,     // tried to access an invalid memory address
 };
 
 enum Instruction : uint8_t
@@ -171,6 +171,7 @@ class VM
   protected:
     uint8_t *_memory;
     uint32_t _registers[REGISTER_COUNT] = {0};
+    const uint16_t _memSize;
     const uint16_t _stackSize;
     const uint16_t _progLen;
     bool (*_interruptCallback)(uint8_t) = nullptr;
