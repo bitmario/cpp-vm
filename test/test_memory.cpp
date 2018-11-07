@@ -13,11 +13,12 @@ TEST_CASE("OP_STOR")
     {
         vm.setRegister(R0, _U32_GARBAGE);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 4);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 4);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == _U32_GARBAGE);
-        REQUIRE(program[9] == 0xFF);
+        REQUIRE(memory[9] == 0xFF);
     }
 
     SECTION("Store zero")
@@ -25,11 +26,12 @@ TEST_CASE("OP_STOR")
         vm.reset();
         vm.setRegister(R0, 0);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 4);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 4);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == 0);
-        REQUIRE(program[9] == 0xFF);
+        REQUIRE(memory[9] == 0xFF);
     }
 }
 
@@ -46,11 +48,12 @@ TEST_CASE("OP_STORW")
     {
         vm.setRegister(R0, _U16_GARBAGE);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 2);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 2);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == _U16_GARBAGE);
-        REQUIRE(program[7] == 0xFF);
+        REQUIRE(memory[7] == 0xFF);
     }
 
     SECTION("Store zero")
@@ -58,11 +61,12 @@ TEST_CASE("OP_STORW")
         vm.reset();
         vm.setRegister(R0, 0);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 2);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 2);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == 0);
-        REQUIRE(program[7] == 0xFF);
+        REQUIRE(memory[7] == 0xFF);
     }
 }
 
@@ -78,10 +82,11 @@ TEST_CASE("OP_STORB")
     {
         vm.setRegister(R0, _U8_GARBAGE);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
+        uint8_t *memory = vm.memory();
 
-        REQUIRE(program[4] == OP_HALT);
-        REQUIRE(program[5] == _U8_GARBAGE);
-        REQUIRE(program[6] == 0xFF);
+        REQUIRE(memory[4] == OP_HALT);
+        REQUIRE(memory[5] == _U8_GARBAGE);
+        REQUIRE(memory[6] == 0xFF);
     }
 
     SECTION("Store zero")
@@ -89,10 +94,11 @@ TEST_CASE("OP_STORB")
         vm.reset();
         vm.setRegister(R0, 0);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
+        uint8_t *memory = vm.memory();
 
-        REQUIRE(program[4] == OP_HALT);
-        REQUIRE(program[5] == 0);
-        REQUIRE(program[6] == 0xFF);
+        REQUIRE(memory[4] == OP_HALT);
+        REQUIRE(memory[5] == 0);
+        REQUIRE(memory[6] == 0xFF);
     }
 }
 
@@ -110,26 +116,29 @@ TEST_CASE("OP_LOAD")
     SECTION("Load value")
     {
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 4);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 4);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == _U32_GARBAGE);
         REQUIRE(vm.getRegister(R0) == _U32_GARBAGE);
-        REQUIRE(program[9] == 0xFF);
+        REQUIRE(memory[9] == 0xFF);
     }
 
     SECTION("Load zero")
     {
         vm.reset();
-        memset(&program[5], 0, 4);
+        uint8_t *memory = vm.memory();
+
+        memset(&memory[5], 0, 4);
         vm.setRegister(R0, _U32_GARBAGE);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 4);
+        memcpy(&actual, &memory[5], 4);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == 0);
         REQUIRE(vm.getRegister(R0) == 0);
-        REQUIRE(program[9] == 0xFF);
+        REQUIRE(memory[9] == 0xFF);
     }
 }
 
@@ -146,26 +155,29 @@ TEST_CASE("OP_LOADW")
     SECTION("Load value")
     {
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 2);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[5], 2);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == _U16_GARBAGE);
         REQUIRE(vm.getRegister(R0) == _U16_GARBAGE);
-        REQUIRE(program[7] == 0xFF);
+        REQUIRE(memory[7] == 0xFF);
     }
 
     SECTION("Load zero")
     {
         vm.reset();
-        memset(&program[5], 0, 2);
+        uint8_t *memory = vm.memory();
+
+        memset(&memory[5], 0, 2);
         vm.setRegister(R0, _U32_GARBAGE);
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[5], 2);
+        memcpy(&actual, &memory[5], 2);
 
-        REQUIRE(program[4] == OP_HALT);
+        REQUIRE(memory[4] == OP_HALT);
         REQUIRE(actual == 0);
         REQUIRE(vm.getRegister(R0) == 0);
-        REQUIRE(program[7] == 0xFF);
+        REQUIRE(memory[7] == 0xFF);
     }
 }
 
@@ -181,24 +193,27 @@ TEST_CASE("OP_LOADB")
     SECTION("Load value")
     {
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
+        uint8_t *memory = vm.memory();
 
-        REQUIRE(program[4] == OP_HALT);
-        REQUIRE(program[5] == _U8_GARBAGE);
+        REQUIRE(memory[4] == OP_HALT);
+        REQUIRE(memory[5] == _U8_GARBAGE);
         REQUIRE(vm.getRegister(R0) == _U8_GARBAGE);
-        REQUIRE(program[6] == 0xFF);
+        REQUIRE(memory[6] == 0xFF);
     }
 
     SECTION("Load zero")
     {
         vm.reset();
+        uint8_t *memory = vm.memory();
+
         vm.setRegister(R0, _U32_GARBAGE);
-        program[5] = 0;
+        memory[5] = 0;
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
 
-        REQUIRE(program[4] == OP_HALT);
-        REQUIRE(program[5] == 0);
+        REQUIRE(memory[4] == OP_HALT);
+        REQUIRE(memory[5] == 0);
         REQUIRE(vm.getRegister(R0) == 0);
-        REQUIRE(program[6] == 0xFF);
+        REQUIRE(memory[6] == 0xFF);
     }
 }
 
@@ -218,12 +233,13 @@ TEST_CASE("OP_MEMCPY")
     SECTION("Copy 4 bytes")
     {
         REQUIRE(vm.run() == ExecResult::VM_FINISHED);
-        memcpy(&actual, &program[8], 4);
-        memcpy(&source, &program[12], 4);
+        uint8_t *memory = vm.memory();
+        memcpy(&actual, &memory[8], 4);
+        memcpy(&source, &memory[12], 4);
 
-        REQUIRE(program[7] == OP_HALT);
+        REQUIRE(memory[7] == OP_HALT);
         REQUIRE(actual == _U32_GARBAGE);
         REQUIRE(source == _U32_GARBAGE);
-        REQUIRE(program[16] == 0xFF);
+        REQUIRE(memory[16] == 0xFF);
     }
 }
