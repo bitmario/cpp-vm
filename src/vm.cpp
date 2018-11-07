@@ -46,6 +46,52 @@ VM::~VM()
     delete[] this->_memory;
 }
 
+void VM::reset()
+{
+    memset(&this->_memory[this->_progLen], 0, this->_stackSize);
+    memset(this->_registers, 0, REGISTER_COUNT * sizeof(uint32_t));
+    this->_registers[SP] = this->_progLen + this->_stackSize;
+}
+
+void VM::onInterrupt(bool (*callback)(uint8_t))
+{
+    this->_interruptCallback = callback;
+}
+
+uint32_t VM::stackCount()
+{
+    return this->_progLen + this->_stackSize - this->_registers[SP];
+}
+
+void VM::stackPush(uint32_t value)
+{
+    this->_registers[SP] -= 4;
+    memcpy(&this->_memory[this->_registers[SP]], &value, sizeof(uint32_t));
+}
+
+uint32_t VM::stackPop()
+{
+    uint32_t val = 0;
+    memcpy(&val, &this->_memory[this->_registers[SP]], sizeof(uint32_t));
+    this->_registers[SP] += 4;
+    return val;
+}
+
+uint8_t *VM::memory(uint16_t addr)
+{
+    return &this->_memory[addr];
+}
+
+uint32_t VM::getRegister(Register reg)
+{
+    return this->_registers[reg];
+}
+
+void VM::setRegister(Register reg, uint32_t val)
+{
+    this->_registers[reg] = val;
+}
+
 ExecResult VM::run(uint32_t maxInstr)
 {
     uint32_t instrCount = 0;

@@ -154,37 +154,19 @@ class VM
   public:
     VM(uint8_t *program, uint16_t progLen, uint16_t stackSize = 256);
     ~VM();
+
     ExecResult run(uint32_t maxInstr = UINT32_MAX);
-    void reset()
-    {
-        memset(&this->_memory[this->_progLen], 0, this->_stackSize);
-        memset(this->_registers, 0, REGISTER_COUNT * sizeof(uint32_t));
-        this->_registers[SP] = this->_progLen + this->_stackSize;
-    }
+    void reset();
+    void onInterrupt(bool (*callback)(uint8_t));
 
-    void onInterrupt(bool (*callback)(uint8_t)) { this->_interruptCallback = callback; }
+    uint32_t stackCount();
+    void stackPush(uint32_t value);
+    uint32_t stackPop();
 
-    uint32_t stackCount() { return this->_progLen + this->_stackSize - this->_registers[SP]; }
-    void stackPush(uint32_t value)
-    {
-        this->_registers[SP] -= 4;
-        memcpy(&this->_memory[this->_registers[SP]], &value, sizeof(uint32_t));
-    }
-    uint32_t stackPop()
-    {
-        uint32_t val = 0;
-        memcpy(&val, &this->_memory[this->_registers[SP]], sizeof(uint32_t));
-        this->_registers[SP] += 4;
-        return val;
-    }
+    uint8_t *memory(uint16_t addr = 0);
 
-    uint8_t *memory(uint16_t addr = 0)
-    {
-        return &this->_memory[addr];
-    }
-
-    uint32_t getRegister(Register reg) { return this->_registers[reg]; }
-    void setRegister(Register reg, uint32_t val) { this->_registers[reg] = val; }
+    uint32_t getRegister(Register reg);
+    void setRegister(Register reg, uint32_t val);
 
   protected:
     uint8_t *_memory;
