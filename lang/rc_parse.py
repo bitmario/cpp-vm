@@ -20,9 +20,9 @@ def p_program(p):
                | program program_item"""
     if len(p) == 2:
         p[0] = ast.Program()
-        p[0].add_child(p[1])
+        p[0].items.append(p[1])
     else:
-        p[1].add_child(p[2])
+        p[1].items.append(p[2])
         p[0] = p[1]
 
 
@@ -34,12 +34,8 @@ def p_program_item(p):
 
 
 def p_var_decl(p):
-    """var_decl : type ident SEMI
-                | type ident EQUALS expression SEMI"""
-    if len(p) == 4:
-        p[0] = ast.VarDecl(p[1], p[2])
-    else:
-        p[0] = ast.VarDecl(p[1], p[2], p[4])
+    """var_decl : type ident SEMI"""
+    p[0] = ast.VarDecl(p[1], p[2])
 
 
 def p_func_decl(p):
@@ -66,7 +62,7 @@ def p_func_args(p):
     elif len(p) == 2:
         p[0] = ast.FuncArgs([p[1]])
     else:
-        p[1].add_child(p[3])
+        p[1].args.append(p[3])
         p[0] = p[1]
 
 
@@ -106,7 +102,7 @@ def p_statement_list(p):
     if len(p) == 2:
         p[0] = ast.Statements([p[1]])
     else:
-        p[1].add_child(p[2])
+        p[1].statements.append(p[2])
         p[0] = p[1]
 
 
@@ -176,13 +172,13 @@ def p_comparison_expression(p):
                              | expression GT expression
                              | expression LE expression
                              | expression GE expression"""
-    p[0] = ast.Comparison(p[1], p[2], p[3])
+    p[0] = ast.ComparisonOp(p[1], p[2], p[3])
 
 
 def p_expression_logic(p):
     """logic_expression : expression OR expression
                         | expression AND expression"""
-    p[0] = ast.Logic(p[1], p[2], p[3])
+    p[0] = ast.LogicOp(p[1], p[2], p[3])
 
 
 def p_expression_logic_not(p):
@@ -234,17 +230,27 @@ yacc.yacc()
 def parse(code, debug=False):
     return yacc.parse(code, debug=debug)
 
+f = open("lang/test.c", "r", encoding="utf-8")
+code = f.read(-1)
+f.close()
+
+x = yacc.parse(code)
+from rc_visitor import PrintVisitor
+if x:
+    printer = PrintVisitor()
+    printer.visit_Program(x)
+    print(printer.result)
 
 # visitor = sast.NodeVisitor()
 
-while 1:
-    try:
-        s = input("> ")
-    except EOFError:
-        break
-    if not s:
-        continue
+# while 1:
+#     try:
+#         s = input("> ")
+#     except EOFError:
+#         break
+#     if not s:
+#         continue
 
-    x = yacc.parse(s, debug=0)
-    if x:
-        print(x.children)
+#     x = yacc.parse(s, debug=0)
+#     if x:
+#         print(x.children)

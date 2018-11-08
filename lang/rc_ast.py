@@ -1,132 +1,182 @@
 class Node:
-    def __init__(self, children=None):
-        self.parent = None
-        if children:
-            for c in children:
-                c.parent = self
-            self.children = children
-        else:
-            self.children = []
-
-    def add_child(self, node):
-        node.parent = self
-        self.children.append(node)
-
-    def add_children(self, nodes):
-        for n in nodes:
-            n.parent = self
-        self.children.extend(nodes)
-
-    def eval(self):
-        return [child.eval() for child in self.children]
-
+    pass
 
 class Program(Node):
-    def __init__(self, children=None):
-        super().__init__(children)
+    def __init__(self, items=None):
+        self.items = items or []
+
+    def accept(self, visitor):
+        visitor.visit_Program(self)
 
 
 class VarDecl(Node):
-    def __init__(self, _type, ident, value=None):
-        super().__init__((_type, ident, value))
+    def __init__(self, _type, ident):
+        self.type = _type
+        self.ident = ident
+
+    def accept(self, visitor):
+        visitor.visit_VarDecl(self)
 
 
 class FuncDecl(Node):
     def __init__(self, rtype, ident, args):
-        super().__init__((rtype, ident, args))
+        self.rtype = rtype
+        self.ident = ident
+        self.args = args
+
+    def accept(self, visitor):
+        visitor.visit_FuncDecl(self)
 
 
 class FuncDef(Node):
     def __init__(self, rtype, ident, args, body):
-        super().__init__((rtype, ident, args, body))
+        self.rtype = rtype
+        self.ident = ident
+        self.args = args
+        self.body = body
+
+    def accept(self, visitor):
+        visitor.visit_FuncDef(self)
 
 
 class FuncArg(Node):
     def __init__(self, _type, ident):
-        super().__init__((_type, ident))
+        self.type = _type
+        self.ident = ident
+
+    def accept(self, visitor):
+        visitor.visit_FuncArg(self)
 
 
 class FuncArgs(Node):
     def __init__(self, args=None):
-        super().__init__(args)
+        self.args = args or []
+
+    def accept(self, visitor):
+        visitor.visit_FuncArgs(self)
 
 
 class Statements(Node):
     def __init__(self, statements=None):
-        super().__init__(statements)
+        self.statements = statements or []
+
+    def accept(self, visitor):
+        visitor.visit_Statements(self)
 
 
 class AssignStatement(Node):
     def __init__(self, ident, value):
-        super().__init__((ident, value))
+        self.ident = ident
+        self.value = value
+
+    def accept(self, visitor):
+        visitor.visit_AssignStatement(self)
 
 
 class ReturnStatement(Node):
-    def __init__(self, value):
-        super().__init__((value,))
+    def __init__(self, expr):
+        self.expr = expr
+
+    def accept(self, visitor):
+        visitor.visit_ReturnStatement(self)
 
 
 class IfStatement(Node):
     def __init__(self, condition, true_block, else_block=None):
-        super().__init__((condition, true_block, else_block))
+        self.condition = condition
+        self.true_block = true_block
+        self.else_block = else_block
+
+    def accept(self, visitor):
+        visitor.visit_IfStatement(self)
 
 
 class WhileStatement(Node):
-    def __init__(self, condition, true_block):
-        super().__init__((condition, true_block))
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def accept(self, visitor):
+        visitor.visit_WhileStatement(self)
 
 
 class UnaryOp(Node):
     def __init__(self, op, right):
-        super().__init__((right,))
         self.op = op
+        self.right = right
+
+    def accept(self, visitor):
+        visitor.visit_UnaryOp(self)
 
 
 class BinaryOp(Node):
     def __init__(self, left, op, right):
-        super().__init__((left, right))
+        self.left = left
         self.op = op
+        self.right = right
+
+    def accept(self, visitor):
+        visitor.visit_BinaryOp(self)
 
 
-class Comparison(Node):
+class ComparisonOp(Node):
     def __init__(self, left, comp, right):
-        super().__init__((left, right))
+        self.left = left
         self.comp = comp
+        self.right = right
+
+    def accept(self, visitor):
+        visitor.visit_ComparisonOp(self)
 
 
-class Logic(Node):
+class LogicOp(Node):
     def __init__(self, left, op, right):
-        super().__init__((left, right))
+        self.left = left
         self.op = op
+        self.right = right
+
+    def accept(self, visitor):
+        visitor.visit_LogicOp(self)
 
 
 class BoolConst(Node):
     def __init__(self, value):
-        super().__init__()
         self.value = True if value == "true" else False
+
+    def accept(self, visitor):
+        visitor.visit_BoolConst(self)
 
 
 class IntConst(Node):
     def __init__(self, value):
-        super().__init__()
         self.value = int(value)
+
+    def accept(self, visitor):
+        visitor.visit_IntConst(self)
 
 
 class Identifier(Node):
     def __init__(self, name):
-        super().__init__()
         self.name = name
+
+    def accept(self, visitor):
+        visitor.visit_Identifier(self)
 
 
 class IdentifierExp(Node):
     def __init__(self, identifier):
-        super().__init__((identifier,))
+        self.identifier = identifier
+
+    def accept(self, visitor):
+        visitor.visit_IdentifierExp(self)
 
 
 class Type(Node):
     def __init__(self, name):
-        super().__init__()
         self.name = name
+
+    def accept(self, visitor):
+        visitor.visit_Type(self)
 
 # class For(Node):
 #     def __init__(self, assignement, max_, body):
