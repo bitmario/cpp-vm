@@ -45,12 +45,19 @@ enum Instruction : uint8_t
     OP_RET,  // return to the address of last callee (RA), e.g.: ret
     // memory:
     OP_STOR,   // copy a value from a register to a heap address, e.g.: stor 0x08 0x00, r0
+    OP_STOR_P,
     OP_STORW,  // copy a word value from a register to a heap address, e.g.: storw 0x08 0x00, r0
+    OP_STORW_P,
     OP_STORB,  // copy a byte value from a register to a heap address, e.g.: storb 0x08 0x00, r0
+    OP_STORB_P,
     OP_LOAD,   // copy a value from a heap address to a register, e.g.: load r0, 0x08 0x00
+    OP_LOAD_P,
     OP_LOADW,  // copy a word value from a heap address to a register, e.g.: loadw r0, 0x08 0x00
+    OP_LOADW_P,
     OP_LOADB,  // copy a byte value from a heap address to a register, e.g.: loadb r0, 0x08 0x00
+    OP_LOADB_P,
     OP_MEMCPY, // copy N bytes from one memory address S to another address D, e.g.: memcpy 0xDD 0xDD, 0xSS 0xSS, 0xNN 0xNN
+    OP_MEMCPY_P,
     // arithmetic:
     OP_INC,  // increment the specified register, e.g.: inc r0
     OP_FINC, // increment a float in the specified register, e.g.: incf r0
