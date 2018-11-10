@@ -40,6 +40,7 @@ class Compiler:
 class ASMCompiler(Compiler):
     def __init__(self):
         super().__init__()
+        self.protected_registers = ["r0", "r1", "r5", "ra", "bp"]
 
     def emit_label(self, label):
         if self.indent_count > 0:
@@ -68,6 +69,9 @@ class ASMCompiler(Compiler):
         self.addline("{}  {}, {}".format(instr, dest, src))
 
     def emit_lcons(self, dest, val, nbytes):
+        if val < 0:
+            # HACK: negative values < 4 bytes are not handled correctly, this is a workaround
+            nbytes = 4
         instr = {1: "lconsb", 2: "lconsw", 4: "lcons"}[nbytes]
         self.addline("{}  {}, {}".format(instr, dest, val))
 
@@ -89,7 +93,7 @@ class ASMCompiler(Compiler):
     def emit_halt(self):
         self.addline("halt")
 
-    def emit_artihmetic(self, op, dest, x, y, unsigned=False):
+    def emit_arithmetic(self, op, dest, x, y, unsigned=False):
         instr = {
             "+": "add",
             "-": "sub",
@@ -116,7 +120,7 @@ class ASMCompiler(Compiler):
 
         true_label = self.unique_label()
         end_label = self.unique_label()
-        
+
         self.addline("{}  {}, {}, .{}".format(instr, x, y, true_label))
         self.emit_lcons(dest, 0, 1)
         self.emit_jmp(end_label)
@@ -124,28 +128,44 @@ class ASMCompiler(Compiler):
         self.emit_lcons(dest, 1, 1)
         self.emit_label(end_label)
 
+    def emit_logic(self, op, dest, x, y):
+        end_label = self.unique_label()
+
+        if op == "||":
+            true_label = self.unique_label()
+            self.emit_jnz(true_label, x)
+            self.emit_jnz(true_label, y)
+            self.emit_lcons(dest, 0, 1)
+            self.emit_jmp(end_label)
+            self.emit_label(true_label)
+            self.emit_lcons(dest, 1, 1)
+            self.emit_label(end_label)
+        elif op == "&&":
+            false_label = self.unique_label()
+            self.emit_jz(false_label, x)
+            self.emit_jz(false_label, y)
+            self.emit_lcons(dest, 1, 1)
+            self.emit_jmp(end_label)
+            self.emit_label(false_label)
+            self.emit_lcons(dest, 0, 1)
+            self.emit_label(end_label)
+        else:
+            raise ValueError
+
     def emit_func_init(self):
-        for i in (0, 1, 5):
-            self.emit_push("r{}".format(i))
-        self.emit_push("ra")
-        self.emit_push("bp")
+        for r in self.protected_registers:
+            self.emit_push(r)
         self.emit_mov("bp", "sp")
 
     def emit_func_cleanup(self):
         self.emit_mov("sp", "bp")
-        self.emit_pop("bp")
-        self.emit_pop("ra")
-        for i in (5, 1, 0):
-            self.emit_pop("r{}".format(i))
+        for r in self.protected_registers[::-1]:
+            self.emit_pop(r)
 
     def emit_func_return(self, val):
         self.emit_mov("t0", val)
         self.emit_func_cleanup()
         self.emit_ret()
-        # for now...
-        #self.addline("printi t0, 1")
-        #self.addline("halt")
-
 
 class ASMCompileVisitor(ASMCompiler):
     def child_accept(self, parent, child):
@@ -162,12 +182,6 @@ class ASMCompileVisitor(ASMCompiler):
     def visit_VarDecl(self, node):
         pass
 
-        # self.addline("")
-        # self.child_accept(node, node.type)
-        # self.add(" ")
-        # self.child_accept(node, node.ident)
-        # self.add(";")
-
     def visit_FuncDef(self, node):
         # prologue
         self.emit_label(node.ident.name)
@@ -177,9 +191,9 @@ class ASMCompileVisitor(ASMCompiler):
         locals_size = node.scope.stack_offset
         if locals_size > 0:
             self.emit_lcons("r1", locals_size, 2)
-            self.emit_artihmetic("-", "sp", "sp", "r1")
+            self.emit_arithmetic("-", "sp", "sp", "r1")
 
-        # TODO: args and return handling
+        # TODO: args
 
         # body
         self.child_accept(node, node.body)
@@ -189,17 +203,19 @@ class ASMCompileVisitor(ASMCompiler):
         self.emit_func_return("r0")
 
     def visit_FuncArg(self, node):
-        self.child_accept(node, node.type)
-        self.add(" ")
-        self.child_accept(node, node.ident)
+        pass
+        # self.child_accept(node, node.type)
+        # self.add(" ")
+        # self.child_accept(node, node.ident)
 
     def visit_FuncArgs(self, node):
-        self.add("(")
-        for i in range(len(node.args)):
-            if i > 0:
-                self.add(", ")
-            self.child_accept(node, node.args[i])
-        self.add(")")
+        pass
+        # self.add("(")
+        # for i in range(len(node.args)):
+        #     if i > 0:
+        #         self.add(", ")
+        #     self.child_accept(node, node.args[i])
+        # self.add(")")
 
     def visit_StatementBlock(self, node):
         self.child_accept(node, node.statements)
@@ -211,7 +227,7 @@ class ASMCompileVisitor(ASMCompiler):
     def visit_AssignStatement(self, node):
         self.child_accept(node, node.value)
         self.emit_lcons("r5", node.symbol.offset, 2)
-        self.emit_artihmetic("-", "r5", "bp", "r5")
+        self.emit_arithmetic("-", "r5", "bp", "r5")
         self.emit_storp("r5", "r0", node.symbol.type_size())
 
     def visit_ReturnStatement(self, node):
@@ -244,15 +260,21 @@ class ASMCompileVisitor(ASMCompiler):
         self.emit_label(end_label)
 
     def visit_UnaryOp(self, node):
-        self.add(node.op)
         self.child_accept(node, node.right)
+        if node.op == "-":
+            self.emit_lcons("r1", -1, 1)
+            self.emit_arithmetic("*", "r0", "r0", "r1")
+        elif node.op == "!":
+            self.addline("not  r0, r0")
+        else:
+            raise ValueError
 
     def visit_BinaryOp(self, node):
         self.child_accept(node, node.left)
         self.emit_push("r0")
         self.child_accept(node, node.right)
         self.emit_pop("r1")
-        self.emit_artihmetic(node.op, "r0", "r1", "r0")
+        self.emit_arithmetic(node.op, "r0", "r1", "r0")
 
     def visit_ComparisonOp(self, node):
         self.child_accept(node, node.left)
@@ -266,8 +288,7 @@ class ASMCompileVisitor(ASMCompiler):
         self.emit_push("r0")
         self.child_accept(node, node.right)
         self.emit_pop("r1")
-
-        self.child_accept(node, node.right)
+        self.emit_logic(node.op, "r0", "r1", "r0")
 
     def visit_IntConst(self, node):
         self.emit_lcons("r0", node.value, 4)
@@ -277,11 +298,11 @@ class ASMCompileVisitor(ASMCompiler):
 
     def visit_IdentifierExp(self, node):
         self.emit_lcons("r5", node.symbol.offset, 2)
-        self.emit_artihmetic("-", "r5", "bp", "r5")
+        self.emit_arithmetic("-", "r5", "bp", "r5")
         self.emit_loadp("r0", "r5", node.symbol.type_size())
 
     def visit_ExpGroup(self, node):
         self.child_accept(node, node.expression)
 
     def visit_Type(self, node):
-        self.add(node.name)
+        pass
