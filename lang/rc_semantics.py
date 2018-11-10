@@ -7,7 +7,7 @@ class Symbol(object):
         self.type = type
 
 
-class LocalVarSymbol(Symbol):
+class VarSymbol(Symbol):
     SIZE_MAP = {"int": 4}
 
     def __init__(self, name, type="int", offset=None):
@@ -18,18 +18,30 @@ class LocalVarSymbol(Symbol):
         return self.SIZE_MAP[self.type]
 
 
+class LocalVarSymbol(VarSymbol):
+    pass
+
+
+class ArgVarSymbol(VarSymbol):
+    pass
+
+
 class SymbolTable(object):
     def __init__(self, scope_name, scope_level, enclosing_scope=None):
         self._symbols = OrderedDict()
         self.scope_name = scope_name
         self.scope_level = scope_level
         self.stack_offset = 0
+        self.arg_offset = 0
         self.enclosing_scope = enclosing_scope
 
     def insert(self, symbol):
         if isinstance(symbol, LocalVarSymbol):
             self.stack_offset += symbol.type_size()
             symbol.offset = self.stack_offset
+        elif isinstance(symbol, ArgVarSymbol):
+            symbol.offset = self.arg_offset
+            self.arg_offset += symbol.type_size()
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name, current_scope_only=False):
@@ -91,9 +103,12 @@ class SemanticAnalyzer:
         self.current_scope = self.current_scope.enclosing_scope
 
     def visit_FuncArg(self, node):
-        # TODO:
-        self.child_accept(node, node.type)
-        self.child_accept(node, node.ident)
+        var_name = node.ident.name
+        if self.current_scope.lookup(var_name, current_scope_only=True):
+            raise Exception("{} already declared".format(var_name))
+
+        node.symbol = ArgVarSymbol(var_name, node.type.name)
+        self.current_scope.insert(node.symbol)
 
     def visit_FuncArgs(self, node):
         for i in range(len(node.args)):

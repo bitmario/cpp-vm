@@ -2,6 +2,8 @@ import random
 import string
 from enum import IntEnum
 
+from rc_semantics import LocalVarSymbol, ArgVarSymbol
+
 
 class CompilerContext:
     class Register:
@@ -41,6 +43,7 @@ class ASMCompiler(Compiler):
     def __init__(self):
         super().__init__()
         self.protected_registers = ["r0", "r1", "r5", "ra", "bp"]
+        self.arg_offset = len(self.protected_registers) * 4
 
     def emit_label(self, label):
         if self.indent_count > 0:
@@ -226,8 +229,12 @@ class ASMCompileVisitor(ASMCompiler):
 
     def visit_AssignStatement(self, node):
         self.child_accept(node, node.value)
-        self.emit_lcons("r5", node.symbol.offset, 2)
-        self.emit_arithmetic("-", "r5", "bp", "r5")
+        if isinstance(node.symbol, LocalVarSymbol):
+            self.emit_lcons("r5", node.symbol.offset, 2)
+            self.emit_arithmetic("-", "r5", "bp", "r5")
+        elif isinstance(node.symbol, ArgVarSymbol):
+            self.emit_lcons("r5", self.arg_offset + node.symbol.offset, 2)
+            self.emit_arithmetic("+", "r5", "bp", "r5")
         self.emit_storp("r5", "r0", node.symbol.type_size())
 
     def visit_ReturnStatement(self, node):
@@ -297,8 +304,12 @@ class ASMCompileVisitor(ASMCompiler):
         pass
 
     def visit_IdentifierExp(self, node):
-        self.emit_lcons("r5", node.symbol.offset, 2)
-        self.emit_arithmetic("-", "r5", "bp", "r5")
+        if isinstance(node.symbol, LocalVarSymbol):
+            self.emit_lcons("r5", node.symbol.offset, 2)
+            self.emit_arithmetic("-", "r5", "bp", "r5")
+        elif isinstance(node.symbol, ArgVarSymbol):
+            self.emit_lcons("r5", self.arg_offset + node.symbol.offset, 2)
+            self.emit_arithmetic("+", "r5", "bp", "r5")
         self.emit_loadp("r0", "r5", node.symbol.type_size())
 
     def visit_ExpGroup(self, node):
