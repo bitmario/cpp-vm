@@ -1,13 +1,15 @@
-int b;
-
-int main(int argc)
+int main()
 {
-    b = 3;
-    int a;
-    a = 1;
-    a = a * 2 + b;
-    if (a == 2) 
+    int i;
+    int x;
+    i = 0;
+    x = 1;
+
+    while (i < 5)
     {
-        a = 3;
+        x = x * 2;
+        i = i + 1;
     }
+
+    return x;
 }

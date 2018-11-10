@@ -9,7 +9,7 @@ KEYWORDS = (
     "IF",
     "ELSE",
     "WHILE",
-    "FOR",
+    # "FOR",
     "RETURN",
 
     "TRUE",
@@ -20,7 +20,7 @@ tokens = KEYWORDS + (
     # values
     "ID",
     "NUMBER",
-    "STRING",
+    # "STRING",
     # operators
     "EQUALS",
     "PLUS",
@@ -87,7 +87,7 @@ t_BOOL = r"bool"
 t_IF = r"if"
 t_ELSE = r"else"
 t_WHILE = r"while"
-t_FOR = r"for"
+#t_FOR = r"for"
 t_RETURN = r"return"
 #t_PRINT = r"print"
 #t_INPUT = r"input"
@@ -125,10 +125,10 @@ def t_NUMBER(t):
     return t
 
 
-def t_STRING(t):
-    r"\"([^\\\n]|(\\.))*?\""
-    t.value = bytes(t.value[1:-1], "utf-8").decode("unicode_escape")
-    return t
+# def t_STRING(t):
+#     r"\"([^\\\n]|(\\.))*?\""
+#     t.value = bytes(t.value[1:-1], "utf-8").decode("unicode_escape")
+#     return t
 
 
 def t_error(t):

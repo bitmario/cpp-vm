@@ -1,8 +1,11 @@
 class Node:
-    pass
+    def __init__(self):
+        self.parent = None
+
 
 class Program(Node):
     def __init__(self, items=None):
+        super().__init__()
         self.items = items or []
 
     def accept(self, visitor):
@@ -11,6 +14,7 @@ class Program(Node):
 
 class VarDecl(Node):
     def __init__(self, _type, ident):
+        super().__init__()
         self.type = _type
         self.ident = ident
 
@@ -18,18 +22,20 @@ class VarDecl(Node):
         visitor.visit_VarDecl(self)
 
 
-class FuncDecl(Node):
-    def __init__(self, rtype, ident, args):
-        self.rtype = rtype
-        self.ident = ident
-        self.args = args
+# class FuncDecl(Node):
+#     def __init__(self, rtype, ident, args):
+#         super().__init__()
+#         self.rtype = rtype
+#         self.ident = ident
+#         self.args = args
 
-    def accept(self, visitor):
-        visitor.visit_FuncDecl(self)
+#     def accept(self, visitor):
+#         visitor.visit_FuncDecl(self)
 
 
 class FuncDef(Node):
     def __init__(self, rtype, ident, args, body):
+        super().__init__()
         self.rtype = rtype
         self.ident = ident
         self.args = args
@@ -41,6 +47,7 @@ class FuncDef(Node):
 
 class FuncArg(Node):
     def __init__(self, _type, ident):
+        super().__init__()
         self.type = _type
         self.ident = ident
 
@@ -50,14 +57,25 @@ class FuncArg(Node):
 
 class FuncArgs(Node):
     def __init__(self, args=None):
+        super().__init__()
         self.args = args or []
 
     def accept(self, visitor):
         visitor.visit_FuncArgs(self)
 
 
+class StatementBlock(Node):
+    def __init__(self, statements=None):
+        super().__init__()
+        self.statements = statements or Statements()
+
+    def accept(self, visitor):
+        visitor.visit_StatementBlock(self)
+
+
 class Statements(Node):
     def __init__(self, statements=None):
+        super().__init__()
         self.statements = statements or []
 
     def accept(self, visitor):
@@ -66,6 +84,7 @@ class Statements(Node):
 
 class AssignStatement(Node):
     def __init__(self, ident, value):
+        super().__init__()
         self.ident = ident
         self.value = value
 
@@ -75,6 +94,7 @@ class AssignStatement(Node):
 
 class ReturnStatement(Node):
     def __init__(self, expr):
+        super().__init__()
         self.expr = expr
 
     def accept(self, visitor):
@@ -83,6 +103,7 @@ class ReturnStatement(Node):
 
 class IfStatement(Node):
     def __init__(self, condition, true_block, else_block=None):
+        super().__init__()
         self.condition = condition
         self.true_block = true_block
         self.else_block = else_block
@@ -93,6 +114,7 @@ class IfStatement(Node):
 
 class WhileStatement(Node):
     def __init__(self, condition, body):
+        super().__init__()
         self.condition = condition
         self.body = body
 
@@ -102,6 +124,7 @@ class WhileStatement(Node):
 
 class UnaryOp(Node):
     def __init__(self, op, right):
+        super().__init__()
         self.op = op
         self.right = right
 
@@ -111,6 +134,7 @@ class UnaryOp(Node):
 
 class BinaryOp(Node):
     def __init__(self, left, op, right):
+        super().__init__()
         self.left = left
         self.op = op
         self.right = right
@@ -121,6 +145,7 @@ class BinaryOp(Node):
 
 class ComparisonOp(Node):
     def __init__(self, left, comp, right):
+        super().__init__()
         self.left = left
         self.comp = comp
         self.right = right
@@ -131,6 +156,7 @@ class ComparisonOp(Node):
 
 class LogicOp(Node):
     def __init__(self, left, op, right):
+        super().__init__()
         self.left = left
         self.op = op
         self.right = right
@@ -139,16 +165,9 @@ class LogicOp(Node):
         visitor.visit_LogicOp(self)
 
 
-class BoolConst(Node):
-    def __init__(self, value):
-        self.value = True if value == "true" else False
-
-    def accept(self, visitor):
-        visitor.visit_BoolConst(self)
-
-
 class IntConst(Node):
     def __init__(self, value):
+        super().__init__()
         self.value = int(value)
 
     def accept(self, visitor):
@@ -157,6 +176,7 @@ class IntConst(Node):
 
 class Identifier(Node):
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
     def accept(self, visitor):
@@ -165,18 +185,30 @@ class Identifier(Node):
 
 class IdentifierExp(Node):
     def __init__(self, identifier):
+        super().__init__()
         self.identifier = identifier
 
     def accept(self, visitor):
         visitor.visit_IdentifierExp(self)
 
+    
+class ExpGroup(Node):
+    def __init__(self, expression):
+        super().__init__()
+        self.expression = expression
+
+    def accept(self, visitor):
+        visitor.visit_ExpGroup(self)
+
 
 class Type(Node):
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
     def accept(self, visitor):
         visitor.visit_Type(self)
+
 
 # class For(Node):
 #     def __init__(self, assignement, max_, body):

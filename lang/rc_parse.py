@@ -27,9 +27,7 @@ def p_program(p):
 
 
 def p_program_item(p):
-    """program_item : var_decl 
-                    | func_decl 
-                    | func_def"""
+    """program_item : func_def"""
     p[0] = p[1]
 
 
@@ -38,9 +36,9 @@ def p_var_decl(p):
     p[0] = ast.VarDecl(p[1], p[2])
 
 
-def p_func_decl(p):
-    """func_decl : type ident LPAREN func_args RPAREN SEMI"""
-    p[0] = ast.FuncDecl(p[1], p[2], p[4])
+# def p_func_decl(p):
+#     """func_decl : type ident LPAREN func_args RPAREN SEMI"""
+#     p[0] = ast.FuncDecl(p[1], p[2], p[4])
 
 
 def p_func_def(p):
@@ -91,9 +89,9 @@ def p_statement_block(p):
     """statement_block : LBRACE RBRACE
                        | LBRACE statement_list RBRACE"""
     if len(p) == 3:
-        p[0] = ast.Statements()
+        p[0] = ast.StatementBlock()
     else:
-        p[0] = p[2]
+        p[0] = ast.StatementBlock(p[2])
 
 
 def p_statement_list(p):
@@ -136,8 +134,8 @@ def p_statement_if(p):
 
 
 def p_statement_while(p):
-    """while_statement : WHILE LPAREN expression RPAREN statements"""
-    p[0] = ast.WhileStatement(p[3], p[6])
+    """while_statement : WHILE LPAREN expression RPAREN statement_block"""
+    p[0] = ast.WhileStatement(p[3], p[5])
 
 
 def p_statement_expr(p):
@@ -150,7 +148,6 @@ def p_expression(p):
                   | unop_expression
                   | comparison_expression
                   | logic_expression
-                  | bool_expression
                   | num_expression
                   | group_expression
                   | ident_expression"""
@@ -191,12 +188,6 @@ def p_expression_uminus(p):
     p[0] = ast.UnaryOp(p[1], p[2])
 
 
-def p_expression_bool(p):
-    """bool_expression : TRUE
-                       | FALSE"""
-    p[0] = ast.BoolConst(p[1])
-
-
 def p_expression_number(p):
     """num_expression : NUMBER"""
     p[0] = ast.IntConst(p[1])
@@ -209,7 +200,7 @@ def p_expression_ident(p):
 
 def p_expression_group(p):
     """group_expression : LPAREN expression RPAREN"""
-    p[0] = p[2]
+    p[0] = ast.ExpGroup(p[2])
 
 
 def p_ident(p):
@@ -236,8 +227,16 @@ f.close()
 
 x = yacc.parse(code)
 from rc_visitor import PrintVisitor
+from rc_semantics import SemanticAnalyzer
+from rc_compiler import ASMCompileVisitor
 if x:
     printer = PrintVisitor()
+    printer.visit_Program(x)
+    print(printer.result)
+
+    analyzer = SemanticAnalyzer()
+    analyzer.visit_Program(x)
+    printer = ASMCompileVisitor()
     printer.visit_Program(x)
     print(printer.result)
 
