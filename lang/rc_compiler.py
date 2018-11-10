@@ -2,8 +2,6 @@ import random
 import string
 from enum import IntEnum
 
-from rc_ast import *
-
 
 class CompilerContext:
     class Register:
@@ -44,7 +42,10 @@ class ASMCompiler(Compiler):
         super().__init__()
 
     def emit_label(self, label):
+        if self.indent_count > 0:
+            self.dedent()
         self.addline(".{}:".format(label))
+        self.indent()
 
     def emit_label_ref(self, label):
         self.addline(".{}".format(label))
@@ -85,6 +86,9 @@ class ASMCompiler(Compiler):
     def emit_ret(self):
         self.addline("ret")
 
+    def emit_halt(self):
+        self.addline("halt")
+
     def emit_artihmetic(self, op, dest, x, y, unsigned=False):
         instr = {
             "+": "add",
@@ -107,7 +111,7 @@ class ASMCompiler(Compiler):
             ">": "ja" if unsigned else "jg",
             ">=": "jae" if unsigned else "jge",
             "<": "jb" if unsigned else "jl",
-            ">=": "jbe" if unsigned else "jle",
+            "<=": "jbe" if unsigned else "jle",
         }[op]
 
         true_label = self.unique_label()
@@ -128,6 +132,7 @@ class ASMCompiler(Compiler):
         self.emit_mov("bp", "sp")
 
     def emit_func_cleanup(self):
+        self.emit_mov("sp", "bp")
         self.emit_pop("bp")
         self.emit_pop("ra")
         for i in (5, 1, 0):
@@ -136,10 +141,10 @@ class ASMCompiler(Compiler):
     def emit_func_return(self, val):
         self.emit_mov("t0", val)
         self.emit_func_cleanup()
-        #self.emit_ret()
+        self.emit_ret()
         # for now...
-        self.addline("printi t0, 1")
-        self.addline("halt")
+        #self.addline("printi t0, 1")
+        #self.addline("halt")
 
 
 class ASMCompileVisitor(ASMCompiler):
@@ -148,7 +153,9 @@ class ASMCompileVisitor(ASMCompiler):
         child.accept(self)
 
     def visit_Program(self, node):
-        self.emit_jmp("main")
+        self.emit_call("main")
+        self.addline("printi  t0, 1")
+        self.emit_halt()
         for c in node.items:
             self.child_accept(node, c)
 
@@ -164,7 +171,6 @@ class ASMCompileVisitor(ASMCompiler):
     def visit_FuncDef(self, node):
         # prologue
         self.emit_label(node.ident.name)
-        self.indent()
         self.emit_func_init()
 
         # allocate space for locals
@@ -181,7 +187,6 @@ class ASMCompileVisitor(ASMCompiler):
         # epilogue
         self.emit_lcons("r0", 0, 1)
         self.emit_func_return("r0")
-        self.dedent()
 
     def visit_FuncArg(self, node):
         self.child_accept(node, node.type)
