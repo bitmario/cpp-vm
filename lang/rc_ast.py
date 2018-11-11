@@ -45,14 +45,23 @@ class FuncDef(Node):
         visitor.visit_FuncDef(self)
 
 
-class FuncArg(Node):
+class FuncParam(Node):
     def __init__(self, _type, ident):
         super().__init__()
         self.type = _type
         self.ident = ident
 
     def accept(self, visitor):
-        visitor.visit_FuncArg(self)
+        visitor.visit_FuncParam(self)
+
+
+class FuncParams(Node):
+    def __init__(self, args=None):
+        super().__init__()
+        self.args = args or []
+
+    def accept(self, visitor):
+        visitor.visit_FuncParams(self)
 
 
 class FuncArgs(Node):
@@ -62,6 +71,16 @@ class FuncArgs(Node):
 
     def accept(self, visitor):
         visitor.visit_FuncArgs(self)
+
+
+class FuncCall(Node):
+    def __init__(self, ident, args):
+        super().__init__()
+        self.ident = ident
+        self.args = args
+
+    def accept(self, visitor):
+        visitor.visit_FuncCall(self)
 
 
 class StatementBlock(Node):

@@ -41,21 +41,19 @@ class PrintVisitor:
 
     def visit_FuncDef(self, node):
         self.addline("")
-        self.addline("")
         self.child_accept(node, node.rtype)
         self.add(" ")
         self.child_accept(node, node.ident)
-        self.add(" ")
         self.child_accept(node, node.args)
         self.child_accept(node, node.body)
         self.addline("")
 
-    def visit_FuncArg(self, node):
+    def visit_FuncParam(self, node):
         self.child_accept(node, node.type)
         self.add(" ")
         self.child_accept(node, node.ident)
 
-    def visit_FuncArgs(self, node):
+    def visit_FuncParams(self, node):
         self.add("(")
         for i in range(len(node.args)):
             if i > 0:
@@ -63,12 +61,25 @@ class PrintVisitor:
             self.child_accept(node, node.args[i])
         self.add(")")
 
+    def visit_FuncCall(self, node):
+        self.child_accept(node, node.ident)
+        self.add("(")
+        self.child_accept(node, node.args)
+        self.add(")")
+
+    def visit_FuncArgs(self, node):
+        for i in range(len(node.args)):
+            if i > 0:
+                self.add(", ")
+            self.child_accept(node, node.args[i])
+
     def visit_StatementBlock(self, node):
         self.add(" {")
         self.indent()
         self.child_accept(node, node.statements)
         self.dedent()
         self.addline("}")
+        self.addline("")
 
     def visit_Statements(self, node):
         for s in node.statements:

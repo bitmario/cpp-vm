@@ -1,10 +1,21 @@
 from collections import OrderedDict
 
 
-class Symbol(object):
+class Symbol:
     def __init__(self, name, type=None):
         self.name = name
         self.type = type
+
+
+class FuncSymbol(Symbol):
+    def __init__(self, name, rtype="int", arg_types=None):
+        self.name = name
+        self.rtype = rtype
+        self.arg_types = arg_types or []
+
+    def args_size(self):
+        sizes = {"int": 4}
+        return sum(sizes[t] for t in self.arg_types)
 
 
 class VarSymbol(Symbol):
@@ -23,7 +34,11 @@ class LocalVarSymbol(VarSymbol):
 
 
 class ArgVarSymbol(VarSymbol):
-    pass
+    def __init__(self, name, type="int", offset=None, func_symbol=None):
+        if not func_symbol:
+            raise ValueError
+        super().__init__(name, type)
+        self.func_symbol = func_symbol
 
 
 class SymbolTable(object):
@@ -40,8 +55,8 @@ class SymbolTable(object):
             self.stack_offset += symbol.type_size()
             symbol.offset = self.stack_offset
         elif isinstance(symbol, ArgVarSymbol):
-            symbol.offset = self.arg_offset
             self.arg_offset += symbol.type_size()
+            symbol.offset = self.arg_offset
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name, current_scope_only=False):
@@ -86,7 +101,15 @@ class SemanticAnalyzer:
         self.current_scope.insert(node.symbol)
 
     def visit_FuncDef(self, node):
-        # TODO:
+        func_name = node.ident.name
+        if self.current_scope.lookup(func_name, current_scope_only=True):
+            raise Exception("{} already declared".format(func_name))
+
+        node.symbol = FuncSymbol(
+            func_name, node.rtype.name, [p.type.name for p in node.args.args]
+        )
+        self.current_scope.insert(node.symbol)
+
         self.child_accept(node, node.rtype)
         self.child_accept(node, node.ident)
 
@@ -102,13 +125,27 @@ class SemanticAnalyzer:
 
         self.current_scope = self.current_scope.enclosing_scope
 
-    def visit_FuncArg(self, node):
+    def visit_FuncParam(self, node):
         var_name = node.ident.name
         if self.current_scope.lookup(var_name, current_scope_only=True):
             raise Exception("{} already declared".format(var_name))
 
-        node.symbol = ArgVarSymbol(var_name, node.type.name)
+        node.symbol = ArgVarSymbol(var_name, node.type.name, func_symbol=node.parent.parent.symbol)
         self.current_scope.insert(node.symbol)
+
+    def visit_FuncParams(self, node):
+        for i in range(len(node.args)):
+            self.child_accept(node, node.args[i])
+
+    def visit_FuncCall(self, node):
+        node.symbol = self.current_scope.lookup(node.ident.name)
+        if not node.symbol or not isinstance(node.symbol, FuncSymbol):
+            raise Exception("Invalid symbol {}".format(node.ident.name))
+        if len(node.args.args) != len(node.symbol.arg_types):
+            raise Exception("Args number mismatch for {}".format(node.ident.name))
+
+        self.child_accept(node, node.ident)
+        self.child_accept(node, node.args)
 
     def visit_FuncArgs(self, node):
         for i in range(len(node.args)):

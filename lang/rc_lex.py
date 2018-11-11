@@ -4,16 +4,12 @@ from ply import lex
 
 KEYWORDS = (
     "INT",
-    "BOOL",
 
     "IF",
     "ELSE",
     "WHILE",
     # "FOR",
     "RETURN",
-
-    "TRUE",
-    "FALSE",
 )
 
 tokens = KEYWORDS + (
@@ -82,7 +78,6 @@ t_SEMI = r";"
 t_COMMA = r","
 
 t_INT = r"int"
-t_BOOL = r"bool"
 
 t_IF = r"if"
 t_ELSE = r"else"
@@ -105,23 +100,11 @@ def t_ID(t):
     return t
 
 
-def t_TRUE(t):
-    r"true"
-    t.value = True
-    return t
-
-
-def t_FALSE(t):
-    r"false"
-    t.value = False
-    return t
-
-
 def t_NUMBER(t):
     r"[-+]?[0-9]+"
     t.value = int(t.value)
-    #r"(\d+(\.\d*)?|\.\d+)([eE][-+]? \d+)?"
-    #t.value = float(t.value)
+    if t.value > 2**31 - 1 or t.value < -2**31:
+        raise ValueError("Invalid int32 {}".format(t.value))
     return t
 
 

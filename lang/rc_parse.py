@@ -37,24 +37,42 @@ def p_var_decl(p):
 
 
 # def p_func_decl(p):
-#     """func_decl : type ident LPAREN func_args RPAREN SEMI"""
+#     """func_decl : type ident LPAREN func_params RPAREN SEMI"""
 #     p[0] = ast.FuncDecl(p[1], p[2], p[4])
 
 
 def p_func_def(p):
-    """func_def : type ident LPAREN func_args RPAREN func_body"""
+    """func_def : type ident LPAREN func_params RPAREN func_body"""
     p[0] = ast.FuncDef(p[1], p[2], p[4], p[6])
 
 
-def p_func_arg(p):
-    """func_arg : type ident"""
-    p[0] = ast.FuncArg(p[1], p[2])
+def p_func_param(p):
+    """func_param : type ident"""
+    p[0] = ast.FuncParam(p[1], p[2])
+
+
+def p_func_params(p):
+    """func_params : 
+                   | func_param
+                   | func_params COMMA func_param"""
+    if len(p) == 1:
+        p[0] = ast.FuncParams()
+    elif len(p) == 2:
+        p[0] = ast.FuncParams([p[1]])
+    else:
+        p[1].args.append(p[3])
+        p[0] = p[1]
+
+
+def p_func_body(p):
+    """func_body : statement_block"""
+    p[0] = p[1]
 
 
 def p_func_args(p):
     """func_args : 
-                 | func_arg
-                 | func_args COMMA func_arg"""
+                 | expression
+                 | func_args COMMA expression"""
     if len(p) == 1:
         p[0] = ast.FuncArgs()
     elif len(p) == 2:
@@ -64,25 +82,14 @@ def p_func_args(p):
         p[0] = p[1]
 
 
-def p_func_body(p):
-    """func_body : statements"""
-    p[0] = p[1]
+def p_func_call(p):
+    """func_call : ident LPAREN func_args RPAREN"""
+    p[0] = ast.FuncCall(p[1], p[3])
 
 
 def p_type(p):
-    """type : INT 
-            | BOOL"""
+    """type : INT"""
     p[0] = ast.Type(p[1])
-
-
-def p_statements(p):
-    """statements : statement"""
-    p[0] = ast.Statements([p[1]])
-
-
-def p_statements_block(p):
-    """statements : statement_block"""
-    p[0] = p[1]
 
 
 def p_statement_block(p):
@@ -150,7 +157,8 @@ def p_expression(p):
                   | logic_expression
                   | num_expression
                   | group_expression
-                  | ident_expression"""
+                  | ident_expression
+                  | func_call"""
     p[0] = p[1]
 
 
@@ -220,36 +228,3 @@ yacc.yacc()
 
 def parse(code, debug=False):
     return yacc.parse(code, debug=debug)
-
-f = open("lang/test.c", "r", encoding="utf-8")
-code = f.read(-1)
-f.close()
-
-x = yacc.parse(code)
-from rc_visitor import PrintVisitor
-from rc_semantics import SemanticAnalyzer
-from rc_compiler import ASMCompileVisitor
-if x:
-    printer = PrintVisitor()
-    printer.visit_Program(x)
-    print(printer.result)
-
-    analyzer = SemanticAnalyzer()
-    analyzer.visit_Program(x)
-    printer = ASMCompileVisitor()
-    printer.visit_Program(x)
-    print(printer.result)
-
-# visitor = sast.NodeVisitor()
-
-# while 1:
-#     try:
-#         s = input("> ")
-#     except EOFError:
-#         break
-#     if not s:
-#         continue
-
-#     x = yacc.parse(s, debug=0)
-#     if x:
-#         print(x.children)

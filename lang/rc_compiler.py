@@ -170,6 +170,7 @@ class ASMCompiler(Compiler):
         self.emit_func_cleanup()
         self.emit_ret()
 
+
 class ASMCompileVisitor(ASMCompiler):
     def child_accept(self, parent, child):
         child.parent = parent
@@ -205,13 +206,13 @@ class ASMCompileVisitor(ASMCompiler):
         self.emit_lcons("r0", 0, 1)
         self.emit_func_return("r0")
 
-    def visit_FuncArg(self, node):
+    def visit_FuncParam(self, node):
         pass
         # self.child_accept(node, node.type)
         # self.add(" ")
         # self.child_accept(node, node.ident)
 
-    def visit_FuncArgs(self, node):
+    def visit_FuncParams(self, node):
         pass
         # self.add("(")
         # for i in range(len(node.args)):
@@ -219,6 +220,18 @@ class ASMCompileVisitor(ASMCompiler):
         #         self.add(", ")
         #     self.child_accept(node, node.args[i])
         # self.add(")")
+
+    def visit_FuncCall(self, node):
+        self.child_accept(node, node.args)
+        self.emit_call(node.ident.name)
+        self.emit_mov("r0", "t0")
+        for _ in node.args.args:
+            self.emit_pop("t0")
+
+    def visit_FuncArgs(self, node):
+        for a in node.args:
+            self.child_accept(node, a)
+            self.emit_push("r0")
 
     def visit_StatementBlock(self, node):
         self.child_accept(node, node.statements)
@@ -233,7 +246,11 @@ class ASMCompileVisitor(ASMCompiler):
             self.emit_lcons("r5", node.symbol.offset, 2)
             self.emit_arithmetic("-", "r5", "bp", "r5")
         elif isinstance(node.symbol, ArgVarSymbol):
-            self.emit_lcons("r5", self.arg_offset + node.symbol.offset, 2)
+            self.emit_lcons(
+                "r5",
+                self.arg_offset + node.symbol.func_symbol.args_size() - node.symbol.offset,
+                2,
+            )
             self.emit_arithmetic("+", "r5", "bp", "r5")
         self.emit_storp("r5", "r0", node.symbol.type_size())
 
@@ -272,7 +289,17 @@ class ASMCompileVisitor(ASMCompiler):
             self.emit_lcons("r1", -1, 1)
             self.emit_arithmetic("*", "r0", "r0", "r1")
         elif node.op == "!":
-            self.addline("not  r0, r0")
+            zero_label = self.unique_label()
+            end_label = self.unique_label()
+
+            self.emit_jz(zero_label, "r0")
+            self.emit_lcons("r0", 0, 1)
+            self.emit_jmp(end_label)
+            self.emit_label(zero_label)
+            self.emit_lcons("r0", 1, 1)
+            self.emit_label(end_label)
+        # elif node.op == "~":
+        #     self.addline("not  r0, r0")
         else:
             raise ValueError
 
@@ -308,7 +335,11 @@ class ASMCompileVisitor(ASMCompiler):
             self.emit_lcons("r5", node.symbol.offset, 2)
             self.emit_arithmetic("-", "r5", "bp", "r5")
         elif isinstance(node.symbol, ArgVarSymbol):
-            self.emit_lcons("r5", self.arg_offset + node.symbol.offset, 2)
+            self.emit_lcons(
+                "r5",
+                self.arg_offset + node.symbol.func_symbol.args_size() - node.symbol.offset,
+                2,
+            )
             self.emit_arithmetic("+", "r5", "bp", "r5")
         self.emit_loadp("r0", "r5", node.symbol.type_size())
 
