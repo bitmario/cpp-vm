@@ -96,7 +96,7 @@ ExecResult VM::run(uint32_t maxInstr)
 {
     uint32_t instrCount = 0;
 
-    while (instrCount < maxInstr)
+    while (maxInstr == 0 || instrCount < maxInstr)
     {
         _CHECK_ADDR_VALID(this->_registers[IP])
         const uint8_t instr = this->_memory[this->_registers[IP]];

@@ -1,15 +1,27 @@
-int main()
-{
+int main() {
+    int num;
     int i;
-    int x;
-    i = 0;
-    x = 1;
+    int isPrime;
+    int primeCount;
+    primeCount = 0;
+    num = 2;
 
-    while (i < 5)
-    {
-        x = x * 2;
-        i = i + 1;
+    while (num < 10000) {
+        isPrime = 1;
+        i = 2;
+
+        while (i < num) {
+            if (num % i == 0) {
+                isPrime = 0;
+                i = num;
+            }
+            i = i + 1;
+        }
+        if (isPrime) {
+            primeCount = primeCount + 1;
+        }
+
+        num = num + 1;
     }
-
-    return x;
+    return primeCount;
 }

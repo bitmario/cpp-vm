@@ -20,7 +20,5 @@ int main(int argc, char *argv[])
     fclose(f);
 
     VM vm(program, fileLen, 2192);
-    vm.run();
-
-    return 0;
+    return vm.run();
 }

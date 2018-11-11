@@ -9,8 +9,9 @@ precedence = (
     ("left", "AND", "OR"),
     ("left", "EQ", "NE"),
     ("left", "LT", "LE", "GT", "GE"),
+    ("left", "SHL", "SHR"),
     ("left", "PLUS", "MINUS"),
-    ("left", "MULTIPLY", "DIVIDE"),
+    ("left", "MULTIPLY", "DIVIDE", "MODULO"),
     ("right", "UNOT", "UMINUS"),
 )
 
@@ -166,7 +167,10 @@ def p_expression_binop(p):
     """binop_expression : expression PLUS expression
                         | expression MINUS expression
                         | expression MULTIPLY expression
-                        | expression DIVIDE expression"""
+                        | expression DIVIDE expression
+                        | expression MODULO expression
+                        | expression SHL expression
+                        | expression SHR expression"""
     p[0] = ast.BinaryOp(p[1], p[2], p[3])
 
 

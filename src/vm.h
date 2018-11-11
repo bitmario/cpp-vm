@@ -162,7 +162,7 @@ class VM
     VM(uint8_t *program, uint16_t progLen, uint16_t stackSize = 256);
     ~VM();
 
-    ExecResult run(uint32_t maxInstr = UINT32_MAX);
+    ExecResult run(uint32_t maxInstr = 0);
     void reset();
     void onInterrupt(bool (*callback)(uint8_t));
 

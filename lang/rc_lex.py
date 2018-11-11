@@ -23,6 +23,9 @@ tokens = KEYWORDS + (
     "MINUS",
     "MULTIPLY",
     "DIVIDE",
+    "MODULO",
+    "SHL",
+    "SHR",
     # comparison operators
     "LT",
     "LE",
@@ -55,6 +58,9 @@ t_PLUS = r"\+"
 t_MINUS = r"-"
 t_MULTIPLY = r"\*"
 t_DIVIDE = r"/"
+t_MODULO = r"\%"
+t_SHL = r"<<"
+t_SHR = r">>"
 t_EQUALS = r"="
 
 # comparison
@@ -63,7 +69,7 @@ t_GT = r">"
 t_LE = r"<="
 t_GE = r">="
 t_EQ = r"=="
-t_NE = r"<>"
+t_NE = r"!="
 
 # logic
 t_OR = r"\|\|"
