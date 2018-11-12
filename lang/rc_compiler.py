@@ -96,6 +96,12 @@ class ASMCompiler(Compiler):
     def emit_halt(self):
         self.addline("halt")
 
+    def emit_inc(self, reg):
+        self.addline("inc  {}".format(reg))
+
+    def emit_dec(self, reg):
+        self.addline("dec  {}".format(reg))
+
     def emit_arithmetic(self, op, dest, x, y, unsigned=False):
         instr = {
             "+": "add",
@@ -298,6 +304,13 @@ class ASMCompileVisitor(ASMCompiler):
             self.emit_label(zero_label)
             self.emit_lcons("r0", 1, 1)
             self.emit_label(end_label)
+        elif node.op in ["++", "--"]:
+            if node.op == "++":
+                self.emit_inc("r0")
+            elif node.op == "--":
+                self.emit_dec("r0")
+            # address should be in r5 already, so we just save
+            self.emit_storp("r5", "r0", node.right.symbol.type_size())
         # elif node.op == "~":
         #     self.addline("not  r0, r0")
         else:

@@ -12,7 +12,7 @@ precedence = (
     ("left", "SHL", "SHR"),
     ("left", "PLUS", "MINUS"),
     ("left", "MULTIPLY", "DIVIDE", "MODULO"),
-    ("right", "UNOT", "UMINUS"),
+    ("right", "UINCREMENT", "UDECREMENT", "UNOT", "UMINUS"),
 )
 
 
@@ -191,12 +191,10 @@ def p_expression_logic(p):
 
 
 def p_expression_logic_not(p):
-    """unop_expression : NOT expression %prec UNOT"""
-    p[0] = ast.UnaryOp(p[1], p[2])
-
-
-def p_expression_uminus(p):
-    """unop_expression : MINUS expression %prec UMINUS"""
+    """unop_expression : NOT expression %prec UNOT
+                       | MINUS expression %prec UMINUS
+                       | INCREMENT ident_expression %prec UINCREMENT
+                       | DECREMENT ident_expression %prec UDECREMENT"""
     p[0] = ast.UnaryOp(p[1], p[2])
 
 

@@ -26,6 +26,8 @@ tokens = KEYWORDS + (
     "MODULO",
     "SHL",
     "SHR",
+    "INCREMENT",
+    "DECREMENT",
     # comparison operators
     "LT",
     "LE",
@@ -62,6 +64,8 @@ t_MODULO = r"\%"
 t_SHL = r"<<"
 t_SHR = r">>"
 t_EQUALS = r"="
+t_INCREMENT = r"\+\+"
+t_DECREMENT = r"\-\-"
 
 # comparison
 t_LT = r"<"
