@@ -19,20 +19,20 @@ halt
     lconsw  r5, 4
     sub  r5, bp, r5
     stor_p  r5, r0
-.loc_X99F9E:
+.loc_60PT8G:
     lconsw  r5, 4
     sub  r5, bp, r5
     load_p  r0, r5
     push  r0
-    lcons  r0, 10000
+    lcons  r0, 100000
     pop  r1
-    jl  r1, r0, .loc_CVGPJ0
+    jl  r1, r0, .loc_Z1M0U8
     lconsb  r0, 0
-    jmp  .loc_H9VISR
-.loc_CVGPJ0:
+    jmp  .loc_4EKRW3
+.loc_Z1M0U8:
     lconsb  r0, 1
-.loc_H9VISR:
-    jz  r0, .loc_BRRZYP
+.loc_4EKRW3:
+    jz  r0, .loc_G8OJZ7
     lcons  r0, 1
     lconsw  r5, 12
     sub  r5, bp, r5
@@ -41,7 +41,7 @@ halt
     lconsw  r5, 8
     sub  r5, bp, r5
     stor_p  r5, r0
-.loc_KUPMKB:
+.loc_1W2TS0:
     lconsw  r5, 8
     sub  r5, bp, r5
     load_p  r0, r5
@@ -50,13 +50,13 @@ halt
     sub  r5, bp, r5
     load_p  r0, r5
     pop  r1
-    jl  r1, r0, .loc_RB64I7
+    jl  r1, r0, .loc_1ZXXXI
     lconsb  r0, 0
-    jmp  .loc_4JI35Z
-.loc_RB64I7:
+    jmp  .loc_M3ET0A
+.loc_1ZXXXI:
     lconsb  r0, 1
-.loc_4JI35Z:
-    jz  r0, .loc_KIT2BU
+.loc_M3ET0A:
+    jz  r0, .loc_2YSPO4
     lconsw  r5, 4
     sub  r5, bp, r5
     load_p  r0, r5
@@ -69,13 +69,13 @@ halt
     push  r0
     lcons  r0, 0
     pop  r1
-    je  r1, r0, .loc_3BADJ2
+    je  r1, r0, .loc_CUL30K
     lconsb  r0, 0
-    jmp  .loc_BJA4GC
-.loc_3BADJ2:
+    jmp  .loc_Z30MBF
+.loc_CUL30K:
     lconsb  r0, 1
-.loc_BJA4GC:
-    jz  r0, .loc_WSIWP4
+.loc_Z30MBF:
+    jz  r0, .loc_8NOB6G
     lcons  r0, 0
     lconsw  r5, 12
     sub  r5, bp, r5
@@ -86,23 +86,18 @@ halt
     lconsw  r5, 8
     sub  r5, bp, r5
     stor_p  r5, r0
-.loc_WSIWP4:
+.loc_8NOB6G:
     lconsw  r5, 8
     sub  r5, bp, r5
     load_p  r0, r5
-    push  r0
-    lcons  r0, 1
-    pop  r1
-    add  r0, r1, r0
-    lconsw  r5, 8
-    sub  r5, bp, r5
+    inc  r0
     stor_p  r5, r0
-    jmp  .loc_KUPMKB
-.loc_KIT2BU:
+    jmp  .loc_1W2TS0
+.loc_2YSPO4:
     lconsw  r5, 12
     sub  r5, bp, r5
     load_p  r0, r5
-    jz  r0, .loc_SZ7AXD
+    jz  r0, .loc_K24JQ2
     lconsw  r5, 16
     sub  r5, bp, r5
     load_p  r0, r5
@@ -113,19 +108,14 @@ halt
     lconsw  r5, 16
     sub  r5, bp, r5
     stor_p  r5, r0
-.loc_SZ7AXD:
+.loc_K24JQ2:
     lconsw  r5, 4
     sub  r5, bp, r5
     load_p  r0, r5
-    push  r0
-    lcons  r0, 1
-    pop  r1
-    add  r0, r1, r0
-    lconsw  r5, 4
-    sub  r5, bp, r5
+    inc  r0
     stor_p  r5, r0
-    jmp  .loc_X99F9E
-.loc_BRRZYP:
+    jmp  .loc_60PT8G
+.loc_G8OJZ7:
     lconsw  r5, 16
     sub  r5, bp, r5
     load_p  r0, r5

@@ -6,7 +6,7 @@ int main() {
     primeCount = 0;
     num = 2;
 
-    while (num < 10000) {
+    while (num < 100000) {
         isPrime = 1;
         i = 2;
 
@@ -15,13 +15,13 @@ int main() {
                 isPrime = 0;
                 i = num;
             }
-            i = i + 1;
+            ++i;
         }
         if (isPrime) {
             primeCount = primeCount + 1;
         }
 
-        num = num + 1;
+        ++num;
     }
     return primeCount;
 }
