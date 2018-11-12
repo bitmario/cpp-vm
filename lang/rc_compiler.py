@@ -44,6 +44,7 @@ class ASMCompiler(Compiler):
         super().__init__()
         self.protected_registers = ["r0", "r1", "r5", "ra", "bp"]
         self.arg_offset = len(self.protected_registers) * 4
+        self.loop_end_label = None
 
     def emit_label(self, label):
         if self.indent_count > 0:
@@ -260,6 +261,9 @@ class ASMCompileVisitor(ASMCompiler):
             self.emit_arithmetic("+", "r5", "bp", "r5")
         self.emit_storp("r5", "r0", node.symbol.type_size())
 
+    def visit_BreakStatement(self, node):
+        self.emit_jmp(self.loop_end_label)
+
     def visit_ReturnStatement(self, node):
         self.child_accept(node, node.expr)
         self.emit_func_return("r0")
@@ -281,11 +285,16 @@ class ASMCompileVisitor(ASMCompiler):
     def visit_WhileStatement(self, node):
         start_label = self.unique_label()
         end_label = self.unique_label()
-
+        
         self.emit_label(start_label)
         self.child_accept(node, node.condition)
         self.emit_jz(end_label, "r0")
+
+        prev_end_label = self.loop_end_label
+        self.loop_end_label = end_label
         self.child_accept(node, node.body)
+        self.loop_end_label = prev_end_label
+
         self.emit_jmp(start_label)
         self.emit_label(end_label)
 

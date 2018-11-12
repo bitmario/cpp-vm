@@ -114,6 +114,7 @@ def p_statement_list(p):
 
 def p_statement(p):
     """statement : assign_statement
+                 | break_statement
                  | return_statement
                  | if_statement
                  | while_statement
@@ -130,6 +131,11 @@ def p_statement_assign(p):
 def p_statement_return(p):
     """return_statement : RETURN expression SEMI"""
     p[0] = ast.ReturnStatement(p[2])
+
+
+def p_statement_break(p):
+    """break_statement : BREAK SEMI"""
+    p[0] = ast.BreakStatement(p[2])
 
 
 def p_statement_if(p):

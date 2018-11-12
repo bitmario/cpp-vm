@@ -169,6 +169,9 @@ class SemanticAnalyzer:
     def visit_ReturnStatement(self, node):
         self.child_accept(node, node.expr)
 
+    def visit_BreakStatement(self, node):
+        pass
+
     def visit_IfStatement(self, node):
         self.child_accept(node, node.condition)
         self.child_accept(node, node.true_block)

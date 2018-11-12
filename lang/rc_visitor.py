@@ -92,6 +92,9 @@ class PrintVisitor:
         self.child_accept(node, node.value)
         self.add(";")
 
+    def visit_BreakStatement(self, node):
+        self.addline("break;")
+
     def visit_ReturnStatement(self, node):
         self.addline("return ")
         self.child_accept(node, node.expr)

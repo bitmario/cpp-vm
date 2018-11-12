@@ -111,6 +111,14 @@ class AssignStatement(Node):
         visitor.visit_AssignStatement(self)
 
 
+class BreakStatement(Node):
+    def __init__(self, expr):
+        super().__init__()
+
+    def accept(self, visitor):
+        visitor.visit_BreakStatement(self)
+
+
 class ReturnStatement(Node):
     def __init__(self, expr):
         super().__init__()

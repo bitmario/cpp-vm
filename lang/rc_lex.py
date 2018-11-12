@@ -9,6 +9,7 @@ KEYWORDS = (
     "ELSE",
     "WHILE",
     # "FOR",
+    "BREAK",
     "RETURN",
 )
 
@@ -93,6 +94,7 @@ t_IF = r"if"
 t_ELSE = r"else"
 t_WHILE = r"while"
 #t_FOR = r"for"
+t_BREAK = r"break"
 t_RETURN = r"return"
 #t_PRINT = r"print"
 #t_INPUT = r"input"
