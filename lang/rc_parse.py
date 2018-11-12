@@ -7,12 +7,15 @@ tokens = rc_lex.tokens
 
 precedence = (
     ("left", "AND", "OR"),
+    ("left", "BOR"),
+    ("left", "BXOR"),
+    ("left", "BAND"),
     ("left", "EQ", "NE"),
     ("left", "LT", "LE", "GT", "GE"),
     ("left", "SHL", "SHR"),
     ("left", "PLUS", "MINUS"),
     ("left", "MULTIPLY", "DIVIDE", "MODULO"),
-    ("right", "UINCREMENT", "UDECREMENT", "UNOT", "UMINUS"),
+    ("right", "UINCREMENT", "UDECREMENT", "UNOT", "UMINUS", "UBNOT"),
 )
 
 
@@ -176,7 +179,10 @@ def p_expression_binop(p):
                         | expression DIVIDE expression
                         | expression MODULO expression
                         | expression SHL expression
-                        | expression SHR expression"""
+                        | expression SHR expression
+                        | expression BOR expression
+                        | expression BXOR expression
+                        | expression BAND expression"""
     p[0] = ast.BinaryOp(p[1], p[2], p[3])
 
 
@@ -196,8 +202,9 @@ def p_expression_logic(p):
     p[0] = ast.LogicOp(p[1], p[2], p[3])
 
 
-def p_expression_logic_not(p):
+def p_expression_unop(p):
     """unop_expression : NOT expression %prec UNOT
+                       | BNOT expression %prec UBNOT
                        | MINUS expression %prec UMINUS
                        | INCREMENT ident_expression %prec UINCREMENT
                        | DECREMENT ident_expression %prec UDECREMENT"""

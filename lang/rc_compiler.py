@@ -320,8 +320,8 @@ class ASMCompileVisitor(ASMCompiler):
                 self.emit_dec("r0")
             # address should be in r5 already, so we just save
             self.emit_storp("r5", "r0", node.right.symbol.type_size())
-        # elif node.op == "~":
-        #     self.addline("not  r0, r0")
+        elif node.op == "~":
+            self.addline("not  r0, r0")
         else:
             raise ValueError
 

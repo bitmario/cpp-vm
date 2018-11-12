@@ -25,8 +25,6 @@ tokens = KEYWORDS + (
     "MULTIPLY",
     "DIVIDE",
     "MODULO",
-    "SHL",
-    "SHR",
     "INCREMENT",
     "DECREMENT",
     # comparison operators
@@ -40,6 +38,13 @@ tokens = KEYWORDS + (
     "OR",
     "AND",
     "NOT",
+    # bitwise
+    "SHL",
+    "SHR",
+    "BAND",
+    "BOR",
+    "BXOR",
+    "BNOT",
     # Delimeters ( ) [ ] { } , . ; :
     "LPAREN",
     "RPAREN",
@@ -62,11 +67,17 @@ t_MINUS = r"-"
 t_MULTIPLY = r"\*"
 t_DIVIDE = r"/"
 t_MODULO = r"\%"
-t_SHL = r"<<"
-t_SHR = r">>"
 t_EQUALS = r"="
 t_INCREMENT = r"\+\+"
 t_DECREMENT = r"\-\-"
+
+# bitwise
+t_SHL = r"<<"
+t_SHR = r">>"
+t_BAND = r"&"
+t_BOR = r"\|"
+t_BXOR = r"\^"
+t_BNOT = r"~"
 
 # comparison
 t_LT = r"<"
